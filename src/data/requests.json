@@ -1,0 +1,26 @@
+[
+  {
+    "id": 1,
+    "requesterId": 3,
+    "requesterName": "Citra Lestari",
+    "bloodType": "B-",
+    "status": "open",
+    "createdAt": "2025-11-10T10:00:00Z"
+  },
+  {
+    "id": 2,
+    "requesterId": 4,
+    "requesterName": "Dewi Anggraini",
+    "bloodType": "AB+",
+    "status": "open",
+    "createdAt": "2025-11-11T14:30:00Z"
+  },
+  {
+    "id": 3,
+    "requesterId": 2,
+    "requesterName": "Budi Santoso",
+    "bloodType": "A+",
+    "status": "fulfilled",
+    "createdAt": "2025-11-09T08:00:00Z"
+  }
+]

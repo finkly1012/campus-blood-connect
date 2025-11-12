@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "name": "Admin Campus",
+    "email": "admin@campus.com",
+    "password": "adminpassword",
+    "bloodType": "O+",
+    "role": "admin"
+  },
+  {
+    "id": 2,
+    "name": "Budi Santoso",
+    "email": "budi@student.com",
+    "password": "password123",
+    "bloodType": "A+",
+    "role": "user"
+  },
+  {
+    "id": 3,
+    "name": "Citra Lestari",
+    "email": "citra@student.com",
+    "password": "password123",
+    "bloodType": "B-",
+    "role": "user"
+  },
+  {
+    "id": 4,
+    "name": "Dewi Anggraini",
+    "email": "dewi@student.com",
+    "password": "password123",
+    "bloodType": "AB+",
+    "role": "user"
+  }
+]
