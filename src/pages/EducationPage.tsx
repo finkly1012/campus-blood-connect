@@ -108,7 +108,8 @@ const EducationPage: React.FC = () => {
                 <ul>
                   <li>Date: December 10, 2025</li>
                   <li>Time: 10:00 AM - 4:00 PM</li>
-                  <li>Location: Universitas Klabat, Lobby GK1</li>
+                  <li>Location: Klabat University
+                    , Lobby GK1</li>
                   <li>
                     Organizer: Campus Health Services in collaboration with Red
                     Cross

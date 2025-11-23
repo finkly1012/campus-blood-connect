@@ -1,62 +1,42 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import LoginPage from './pages/LoginPage';
-import UserDashboard from './pages/UserDashboard';
-import AdminDashboard from './pages/AdminDashboard';
-import HomePage from './pages/HomePage'; // New import
-import FindDonorPage from './pages/FindDonorPage'; // New import
-import DonorFormPage from './pages/DonorFormPage'; // New import
-import EducationPage from './pages/EducationPage'; // New import
+import HomePage from './pages/HomePage';
+import FindDonorPage from './pages/FindDonorPage';
+import DonorFormPage from './pages/DonorFormPage';
+import EducationPage from './pages/EducationPage';
 import Navbar from './components/Navbar';
+import ProtectedRoute from './components/ProtectedRoute';
+import RoleBasedDashboardRedirector from './components/RoleBasedDashboardRedirector'; // Import the new component
+import { useUser } from './context/UserContext';
 import './App.css';
+import React from 'react'; // Import React
 
-interface ProtectedRouteProps {
-  allowedRoles: string[];
-}
-
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ allowedRoles }) => {
-  const userString = localStorage.getItem('loggedInUser');
-  const user = userString ? JSON.parse(userString) : null;
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
+const RootRedirect: React.FC = () => {
+  const { user } = useUser();
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
   }
-
-  if (!allowedRoles.includes(user.role)) {
-    // If user doesn't have the required role, redirect to their own dashboard or home
-    return user.role === 'admin' ? <Navigate to="/admin" replace /> : <Navigate to="/user" replace />;
-  }
-
-  return <Outlet />;
+  return <Navigate to="/login" replace />;
 };
 
 function App() {
-  const userString = localStorage.getItem('loggedInUser');
-  const user = userString ? JSON.parse(userString) : null;
 
   return (
     <Router>
       <Navbar />
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/home" element={<HomePage />} />
         <Route path="/find-donor" element={<FindDonorPage />} />
         <Route path="/donate" element={<DonorFormPage />} />
         <Route path="/education" element={<EducationPage />} />
 
-        {/* Root path: if logged in, go to HomePage, otherwise to LoginPage */}
-        <Route
-          path="/"
-          element={user ? <HomePage /> : <Navigate to="/login" replace />}
-        />
+        {/* Root path: if logged in, go to /dashboard, otherwise to LoginPage */}
+        <Route path="/" element={<RootRedirect />} />
 
-        {/* Protected User Routes */}
+        {/* Protected Dashboard Route - Renders AdminDashboard or UserDashboard based on role */}
         <Route element={<ProtectedRoute allowedRoles={['user', 'admin']} />}>
-          <Route path="/user" element={<UserDashboard />} />
-        </Route>
-
-        {/* Protected Admin Routes */}
-        <Route element={<ProtectedRoute allowedRoles={['admin']} />}>
-          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/dashboard" element={<RoleBasedDashboardRedirector />} />
         </Route>
 
         {/* Catch-all for undefined routes */}

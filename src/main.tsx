@@ -1,11 +1,18 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import 'bootstrap/dist/css/bootstrap.min.css'
+import 'bootstrap/dist/js/bootstrap.bundle.min.js'
 import './index.css'
 import App from './App.tsx'
+import { UserProvider } from './context/UserContext.tsx'
+import { DonorProvider } from './context/DonorContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <App />
+    <UserProvider>
+      <DonorProvider>
+        <App />
+      </DonorProvider>
+    </UserProvider>
   </StrictMode>,
 )

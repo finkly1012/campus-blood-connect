@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Form, Button, Alert } from 'react-bootstrap';
+import { DonorContext } from '../context/DonorContext';
 import '../App.css';
 
 interface DonorFormData {
@@ -17,8 +18,15 @@ const DonorFormPage: React.FC = () => {
     lastDonationDate: '',
   });
   const [message, setMessage] = useState<{ type: 'success' | 'danger'; text: string } | null>(null);
+  const donorContext = useContext(DonorContext);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+  if (!donorContext) {
+    return <div>Loading...</div>;
+  }
+
+  const { addDonor } = donorContext;
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
@@ -28,11 +36,7 @@ const DonorFormPage: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Store data temporarily in localStorage
-    const existingDonors = JSON.parse(localStorage.getItem('pendingDonors') || '[]');
-    const updatedDonors = [...existingDonors, formData];
-    localStorage.setItem('pendingDonors', JSON.stringify(updatedDonors));
-
+    addDonor(formData);
     setMessage({ type: 'success', text: 'Thank you for registering! Your information has been saved.' });
     setFormData({
       name: '',

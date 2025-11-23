@@ -1,13 +1,18 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import users from '../data/users.json';
+import { useUser } from '../context/UserContext';
+import type { User } from '../context/UserContext';
 import './LoginPage.css';
+
+// ...
 
 const LoginPage: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { setUser } = useUser();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,10 +23,14 @@ const LoginPage: React.FC = () => {
     );
 
     if (user) {
-      // Store user info in localStorage to simulate a session
-      localStorage.setItem('loggedInUser', JSON.stringify(user));
+      // Explicitly cast the role property
+      const typedUser: User = {
+        ...user,
+        role: user.role as 'user' | 'admin'
+      };
+      setUser(typedUser);
 
-      if (user.role === 'admin') {
+      if (typedUser.role === 'admin') {
         navigate('/admin');
       } else {
         navigate('/user');

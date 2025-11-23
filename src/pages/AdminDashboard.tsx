@@ -3,14 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import usersData from '../data/users.json';
 import requestsData from '../data/requests.json';
 import { Alert } from 'react-bootstrap';
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  bloodType: string;
-  role: 'user' | 'admin';
-}
+import { useUser } from '../context/UserContext'; // Import useUser
+import type { User } from '../context/UserContext'; // Import User interface
 
 interface BloodRequest {
   id: number;
@@ -30,7 +24,7 @@ interface PendingDonor {
 
 const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
+  const { user } = useUser(); // Use user from context
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [allRequests, setAllRequests] = useState<BloodRequest[]>([]);
   const [pendingDonors, setPendingDonors] = useState<PendingDonor[]>([]);
@@ -38,31 +32,31 @@ const AdminDashboard: React.FC = () => {
 
 
   useEffect(() => {
-    const userString = localStorage.getItem('loggedInUser');
-    if (userString) {
-      try {
-        const user: User = JSON.parse(userString);
-        if (user.role === 'admin') {
-          setLoggedInUser(user);
-          setAllUsers(usersData);
-          setAllRequests(requestsData);
-          loadPendingDonors();
+    if (user) { // Check user from context
+      if (user.role === 'admin') {
+          const typedUsersData: User[] = usersData.map(u => ({
+            ...u,
+            role: u.role as 'user' | 'admin'
+          }));
+          setAllUsers(typedUsersData);
+
+          const typedRequestsData: BloodRequest[] = requestsData.map(req => ({
+            ...req,
+            status: req.status as 'open' | 'fulfilled'
+          }));
+          setAllRequests(typedRequestsData);
+          
+          const storedPendingDonors = JSON.parse(localStorage.getItem('pendingDonors') || '[]');
+          setPendingDonors(storedPendingDonors);
         } else {
-          navigate('/user');
+          navigate('/dashboard');
         }
-      } catch (error) {
-        console.error("Failed to parse loggedInUser from localStorage:", error);
-        navigate('/login'); // Redirect to login if user data is corrupted
-      }
     } else {
       navigate('/login');
     }
-  }, [navigate]);
+  }, [user, navigate]); // Add user to dependency array
 
-  const loadPendingDonors = () => {
-    const storedPendingDonors = JSON.parse(localStorage.getItem('pendingDonors') || '[]');
-    setPendingDonors(storedPendingDonors);
-  };
+
 
   const handleMarkFulfilled = (requestId: number) => {
     setAllRequests(prevRequests =>
@@ -100,7 +94,7 @@ const AdminDashboard: React.FC = () => {
     setMessage({ type: 'danger', text: `Donor ${donorToReject.name} rejected and removed from pending list.` });
   };
 
-  if (!loggedInUser) {
+  if (!user) { // Check user from context
     return (
       <div className="container mt-5">
         <div className="alert alert-warning">Loading admin dashboard...</div>
@@ -110,8 +104,12 @@ const AdminDashboard: React.FC = () => {
 
   return (
     <div className="container mt-4">
-      <h2 className="mb-4">Admin Dashboard - Welcome, {loggedInUser.name}!</h2>
-      {message && <Alert variant={message.type}>{message.text}</Alert>}
+      <div className="card border-info mb-4">
+        <div className="card-header bg-info text-white">
+          <h2 className="mb-0">Admin Dashboard - Welcome, {user.name}!</h2>
+        </div>
+        <div className="card-body">
+          {message && <Alert variant={message.type}>{message.text}</Alert>}
 
       {/* Pending Donor Registrations Section */}
       <div className="card mb-5">
@@ -181,13 +179,13 @@ const AdminDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {allUsers.map(user => (
-                  <tr key={user.id}>
-                    <td>{user.id}</td>
-                    <td>{user.name}</td>
-                    <td>{user.email}</td>
-                    <td><span className="badge bg-info">{user.bloodType}</span></td>
-                    <td>{user.role}</td>
+                {allUsers.map(u => (
+                  <tr key={u.id}>
+                    <td>{u.id}</td>
+                    <td>{u.name}</td>
+                    <td>{u.email}</td>
+                    <td><span className="badge bg-info">{u.bloodType}</span></td>
+                    <td>{u.role}</td>
                   </tr>
                 ))}
               </tbody>
@@ -248,6 +246,8 @@ const AdminDashboard: React.FC = () => {
             </table>
           </div>
         </div>
+      </div>
+    </div>
       </div>
     </div>
   );

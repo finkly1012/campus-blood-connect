@@ -1,20 +1,20 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { useUser } from '../context/UserContext';
 
 const Navbar: React.FC = () => {
   const navigate = useNavigate();
-  const userString = localStorage.getItem('loggedInUser');
-  const user = userString ? JSON.parse(userString) : null;
+  const { user, setUser } = useUser();
 
   const handleLogout = () => {
-    localStorage.removeItem('loggedInUser');
+    setUser(null);
     navigate('/login');
   };
 
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-danger">
+    <nav className="navbar navbar-expand-lg navbar-dark bg-dark">
       <div className="container-fluid">
-        <Link className="navbar-brand" to="/">
+        <Link className="navbar-brand" to={user ? "/home" : "/login"}>
           Campus Blood Connect
         </Link>
         <button
@@ -47,37 +47,35 @@ const Navbar: React.FC = () => {
                     Education
                   </Link>
                 </li>
+                <li className="nav-item">
+                  <Link className="nav-link" to="/dashboard">
+                    Dashboard
+                  </Link>
+                </li>
               </>
-            )}
-            {user && user.role === 'user' && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/user">
-                  Dashboard
-                </Link>
-              </li>
-            )}
-            {user && user.role === 'admin' && (
-              <li className="nav-item">
-                <Link className="nav-link" to="/admin">
-                  Admin Dashboard
-                </Link>
-              </li>
             )}
           </ul>
           <ul className="navbar-nav">
             {user ? (
-              <>
-                <li className="nav-item">
-                  <span className="nav-link text-white">
-                    Welcome, {user.name} ({user.role})
-                  </span>
-                </li>
-                <li className="nav-item">
-                  <button className="btn btn-outline-light" onClick={handleLogout}>
-                    Logout
-                  </button>
-                </li>
-              </>
+              <li className="nav-item dropdown">
+                <a
+                  className="nav-link dropdown-toggle"
+                  href="#"
+                  id="navbarDropdown"
+                  role="button"
+                  data-bs-toggle="dropdown"
+                  aria-expanded="false"
+                >
+                  Welcome, {user.name} ({user.role})
+                </a>
+                <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                  <li>
+                    <button className="dropdown-item" onClick={handleLogout}>
+                      Logout
+                    </button>
+                  </li>
+                </ul>
+              </li>
             ) : (
               <li className="nav-item">
                 <Link className="btn btn-outline-light" to="/login">
